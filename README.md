@@ -1,5 +1,11 @@
 # 🎵 Music Recommender Simulation
 
+## Output
+
+![Recommender Output](Output.png)
+
+---
+
 ## Project Summary
 
 In this project you will build and explain a small music recommender system.
@@ -11,23 +17,95 @@ Your goal is to:
 - Evaluate what your system gets right and wrong
 - Reflect on how this mirrors real world AI recommenders
 
-Replace this paragraph with your own summary of what your version does.
+This project simulates how real-world music platforms like Spotify match songs to listeners. It loads a small catalog of songs, accepts a user taste profile, and returns the top-k recommendations using a weighted scoring rule applied to each song's features.
 
 ---
 
 ## How The System Works
 
-Explain your design in plain language.
+Real-world recommendation systems work by finding items that closely match a user's expressed or inferred preferences. Rather than simply sorting by a single attribute, they compute a composite score across multiple features — rewarding songs that are close to what the user wants on each dimension. This simulation prioritizes **vibe-first** matching: mood and energy are the dominant signals, since they most directly capture how a song feels. Genre acts as a secondary filter, and valence adds emotional nuance.
 
-Some prompts to answer:
+**Song features used:**
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+- `genre` — categorical style label (pop, lofi, rock, jazz, ambient, synthwave, indie pop)
+- `mood` — categorical vibe label (happy, chill, intense, relaxed, focused, moody)
+- `energy` — float 0–1, how intense or driving the track feels
+- `valence` — float 0–1, how positive or uplifting the track feels
+- `danceability` — float 0–1, how groove-oriented the track is
+- `acousticness` — float 0–1, how acoustic vs. produced the track sounds
 
-You can include a simple diagram or bullet list if helpful.
+**UserProfile fields:**
+
+- `genre` — preferred genre string
+- `mood` — preferred mood string
+- `energy` — target energy level (float 0–1)
+
+**Scoring rule (per song):**
+
+Each song receives a composite score from 0–1:
+
+```
+score = (0.4 × mood_match) + (0.3 × energy_proximity) + (0.2 × genre_match) + (0.1 × valence_proximity)
+```
+
+- Categorical matches (mood, genre) = 1.0 if equal, 0.0 otherwise
+- Numerical proximity = `1 - |user_value - song_value|` (rewards closeness, not just high/low)
+
+**Ranking rule:**
+
+All songs are scored, then sorted in descending order. The top-k scores are returned with an explanation of which features contributed.
+
+---
+
+## User Taste Profile
+
+The starter profile used in `main.py` looks like:
+
+```python
+user_prefs = {"genre": "pop", "mood": "happy", "energy": 0.8}
+```
+
+**Critique of this profile:** This profile can differentiate between "intense rock" and "chill lofi" because:
+- A "chill lofi" song (energy ~0.35–0.42) will score low on energy proximity vs. the target of 0.8
+- A "happy pop" song (energy ~0.82, mood=happy) will score near-perfect on all three dimensions
+- However, the profile is narrow — it has no valence or danceability target, so two songs that both match genre+mood+energy will be indistinguishable unless valence is added as a tiebreaker
+
+A richer profile would include `"valence": 0.8` to distinguish an upbeat happy song from a bittersweet happy song.
+
+---
+
+## Algorithm Recipe
+
+This is the exact scoring logic the recommender uses:
+
+| Step | Rule | Points |
+|------|------|--------|
+| 1 | Genre exact match | +2.0 |
+| 2 | Mood exact match | +1.0 |
+| 3 | Energy proximity | `1 - abs(user_energy - song_energy)` (0–1) |
+| 4 | Valence proximity | `1 - abs(0.7 - song_valence)` if no user valence provided |
+
+**Why these weights?** Genre (+2.0) ranks highest because it's the broadest filter — recommending jazz to a metal fan regardless of mood would feel wrong. Mood (+1.0) is next because it captures emotional state. Energy and valence are continuous bonuses that break ties within matching genre/mood pairs.
+
+**Data flow:**
+
+```mermaid
+flowchart TD
+    A[User Taste Profile\ngenre, mood, energy] --> B[Load songs.csv\n20 songs]
+    B --> C{For each song}
+    C --> D[Score: genre match?\n+2.0 pts]
+    C --> E[Score: mood match?\n+1.0 pts]
+    C --> F[Score: energy proximity\n0–1 pts]
+    C --> G[Score: valence proximity\n0–1 pts]
+    D & E & F & G --> H[Composite Score]
+    H --> I[Sort all songs\nby score descending]
+    I --> J[Return Top-K\nwith explanation]
+```
+
+**Expected biases:**
+- Genre over-dominates: two songs with the same genre but mismatched mood still outscore a perfect-mood match in a different genre. This could bury a great folk song for a user who accidentally listed "pop" as their genre.
+- Mood is binary: "happy" and "relaxed" get 0 overlap even though they're closer in feel than "happy" and "intense." A graded mood similarity would be more nuanced.
+- No popularity signal: a niche track and a widely loved track score identically if their features match.
 
 ---
 

@@ -9,3 +9,13 @@ id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness
 8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22
 9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78
 10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35
+11,Desert Frequency,Sand Static,electronic,focused,0.68,122,0.52,0.77,0.08
+12,Broken Compass,The Driftwood,folk,melancholy,0.31,66,0.38,0.45,0.94
+13,Neon Funeral,Grave Circuits,metal,intense,0.97,180,0.22,0.51,0.03
+14,Sunday Slow Burn,Ella Vox,soul,relaxed,0.44,84,0.78,0.63,0.67
+15,Pixel Garden,Chipwave,chiptune,happy,0.71,140,0.88,0.84,0.04
+16,Rain on Glass,Hollow Echo,classical,melancholy,0.22,52,0.34,0.28,0.97
+17,Carnival Lights,Brass Riot,latin,happy,0.85,128,0.91,0.92,0.12
+18,Back Alley Groove,The Lowdown,blues,moody,0.53,96,0.62,0.69,0.76
+19,Hypnotic Drift,Phase Shift,psych rock,moody,0.66,104,0.44,0.58,0.31
+20,Morning Raga,Sitar Dreams,world,relaxed,0.33,74,0.67,0.42,0.88
